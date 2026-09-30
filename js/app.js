@@ -123,7 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const stageCanvas = document.getElementById('stage-canvas');
     const btnFlashNeuralyzer = document.getElementById('btn-flash-neuralyzer');
     const neutralizerFlash = document.getElementById('neutralizer-flash');
-    const finalQuote = document.getElementById('final-quote');
     const hintBannerText = document.getElementById('hint-banner-text');
 
     // --- WEB AUDIO SYNTHESIZER ---
@@ -476,18 +475,18 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound('success');
     }
 
+    // Neutralizer memory wipe button action -> triggers flash and returns to start screen
     btnFlashNeuralyzer.addEventListener('click', () => {
         playSound('zap');
         neutralizerFlash.classList.add('active');
+        
         setTimeout(() => {
             neutralizerFlash.classList.remove('active');
-            finalQuote.classList.remove('hidden');
+            // Reset to Intro screen
+            screenEpilogue.classList.add('hidden');
+            screenGame.classList.add('hidden');
+            screenIntro.classList.remove('hidden');
+            currentPhaseIndex = 0;
         }, 1500);
-    });
-
-    btnRestart.addEventListener('click', () => {
-        playSound('beep');
-        finalQuote.classList.add('hidden');
-        startPhase(1);
     });
 });
