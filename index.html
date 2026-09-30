@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>M.I.B. Sección Aduanas - Operación Agente D</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <!-- Overlay de Escáner Cibernético & Scanlines -->
+    <div class="cyber-overlay"></div>
+    <div class="scanline"></div>
+
+    <!-- Control de Audio -->
+    <button id="soundToggle" class="sound-btn" aria-label="Toggle Sound">
+        <span class="sound-icon">🔊</span>
+        <span class="sound-text">AUDIO ON</span>
+    </button>
+
+    <!-- Contenedor Principal Terminal MIB -->
+    <main class="terminal-container">
+        <!-- Header MIB -->
+        <header class="terminal-header">
+            <div class="mib-logo-group">
+                <div class="mib-badge">M.I.B</div>
+                <div class="header-titles">
+                    <h1>M.I.B. SECCIÓN ADUANAS</h1>
+                    <p class="subtitle">ACCESO A EXPEDIENTES CLASIFICADOS</p>
+                </div>
+            </div>
+            <div class="terminal-status">
+                <span class="status-dot pulsing"></span>
+                <span class="status-label">CÓDIGO ROJO</span>
+                <div class="confidential-tag">CONFIDENCIAL</div>
+            </div>
+        </header>
+
+        <!-- PANTALLA 0: INTRODUCCIÓN -->
+        <section id="screen-intro" class="screen active">
+            <div class="briefing-box glow-border">
+                <div class="briefing-header">
+                    <span class="icon-lock">🔒</span>
+                    <h2>OPERACIÓN "LIBERAR AL AGENTE D"</h2>
+                </div>
+                <div class="briefing-content">
+                    <p class="typing-text" id="intro-typing"></p>
+                    <div class="briefing-card">
+                        <div class="agent-avatar-preview">
+                            <div class="agente-d-icon">👨‍🏫</div>
+                            <div class="status-badge alert">EN CUSTODIA</div>
+                        </div>
+                        <div class="briefing-details">
+                            <h3>ALERTA DE SEGURIDAD ADUANERA</h3>
+                            <p>El Agente D ha sido incriminado por un saboteador fronterizo. Un embarque de 10,000 microprocesadores cuánticos Q-900 fue alterado para acusarlo de contrabando y desvío fiscal.</p>
+                            <p>Tu misión: Interactúa con la evidencia en pantalla en cada fase, descubre las pistas e ingresa el código para exonerarlo.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-bar">
+                    <button id="btn-start-mission" class="btn-cyber glow-button">
+                        <span class="btn-icon">⚡</span>
+                        INICIAR SECUENCIA DE DESBLOQUEO
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONTENEDOR DINÁMICO PARA FASES 1 A 5 -->
+        <section id="screen-game" class="screen hidden">
+            <!-- Barra Superior de Fase -->
+            <div class="phase-progress-bar">
+                <div class="phase-indicator" id="phase-title-badge">FASE 1 DE 5</div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="progress-fill" style="width: 20%;"></div>
+                </div>
+                <div class="agent-name-tag" id="current-agent-tag">AGENTE: ANDY</div>
+            </div>
+
+            <div class="game-grid">
+                <!-- Panel de Interfaz de Contraseña -->
+                <div class="password-panel glow-border">
+                    <div class="password-card-header">
+                        <div class="lock-graphic">
+                            <svg viewBox="0 0 24 24" class="padlock-svg">
+                                <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                            </svg>
+                        </div>
+                        <h2 id="phase-unlock-title">DESBLOQUEAR CASO 1</h2>
+                    </div>
+
+                    <form id="password-form" onsubmit="return false;">
+                        <div class="input-wrapper">
+                            <label for="password-input">INGRESAR CÓDIGO CLASIFICADO</label>
+                            <div class="cyber-input-group">
+                                <input type="text" id="password-input" autocomplete="off" placeholder="Escribir..." spellcheck="false">
+                                <button type="submit" id="btn-submit-pass" class="btn-input-submit">OK</button>
+                            </div>
+                            <div id="password-feedback" class="feedback-msg"></div>
+                        </div>
+                    </form>
+
+                    <!-- Banner de Instrucciones Visibles para Revisión -->
+                    <div class="hint-banner">
+                        <span class="hint-icon">💡</span>
+                        <span id="hint-banner-text">Mueve el objeto en pantalla para descubrir la pista.</span>
+                    </div>
+
+                    <div class="tech-codes">
+                        <span>EXPEDIENTE #3dKAVBVG</span>
+                        <span>AGENCIA ADUANAL MIB</span>
+                        <div class="tag-confidential">CONFIDENCIAL</div>
+                    </div>
+                </div>
+
+                <!-- Escena Gráfica Interactiva (Estilo Brain Out) -->
+                <div class="interactive-stage glow-border">
+                    <div class="stage-watermark">EXPEDIENTE A-119/134</div>
+                    
+                    <!-- Área de Objetos Interactivos -->
+                    <div id="stage-canvas" class="stage-canvas">
+                        <!-- Los elementos dinámicos interactivos se renderizan por JS según la Fase actual -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PANTALLA 6: DESENLACE & NEUTRALIZADOR MIB -->
+        <section id="screen-epilogue" class="screen hidden">
+            <div class="epilogue-box glow-border">
+                <div class="epilogue-status-header">
+                    <div class="badge-cleared">CASO CERRADO</div>
+                    <h2>AGENTE D LIBERADO DE TODA ACUSACIÓN</h2>
+                </div>
+
+                <div class="epilogue-body">
+                    <div class="agent-free-banner">
+                        <div class="profesor-icon">👨‍🏫✨</div>
+                        <div class="victory-speech">
+                            <p><strong>AGENTE ILSE:</strong> "¡Caso cerrado! La evidencia nos permitió reconstruir la operación y distinguir las responsabilidades legales en cada etapa del tránsito aduanero. El sabotaje quedó al descubierto y el Agente D queda 100% libre de cargos."</p>
+                        </div>
+                    </div>
+
+                    <div class="neutralizer-zone glow-border">
+                        <h3>⚠️ SECUENCIA DE BORRADO DE MEMORIA MIB</h3>
+                        <p>Atención cadetes y espectadores del salón: Miren fijamente al dispositivo neutralizador...</p>
+                        
+                        <div class="neutralizer-device">
+                            <div class="neuralyzer-tool">
+                                <div class="red-lens" id="neuralyzer-lens"></div>
+                            </div>
+                            <button id="btn-flash-neuralyzer" class="btn-cyber btn-flash">
+                                💥 FLASH NEUTRALIZADOR (CLIC AQUÍ)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="final-quote-card hidden" id="final-quote">
+                        <p class="final-text">"Y ahora sí... atención todos los presentes: miren fijamente a esta luz. No hubo chips cuánticos, no hubo saboteadores intergalácticos ni prisiones secretas. Acaban de presenciar una exposición increíble de los artículos 119 al 134 de la Ley Aduanera... y el Agente D nos va a poner 10 a todas en esta presentación." 😎🕶️✨</p>
+                        <button id="btn-restart" class="btn-cyber btn-secondary">🔁 REINICIAR EXPEDIENTE</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="terminal-footer">
+            <span>M.I.B. ADUANAS SYSTEM v2.5</span>
+            <span>PROYECTO ILSE & TEAM</span>
+        </footer>
+    </main>
+
+    <!-- Pantalla de Destello Neutralizador -->
+    <div id="neutralizer-flash" class="flash-overlay"></div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
