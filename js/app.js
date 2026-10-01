@@ -1,5 +1,5 @@
 /* ==========================================================================
-   M.I.B. SECCIÓN ADUANAS - ENGINE BRAIN OUT CON ASSETS PNG RECOR TADOS
+   M.I.B. SECCIÓN ADUANAS - ENGINE BRAIN OUT CON RESPUESTAS EN ROJO TRAS INTERACCIÓN
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPhaseIndex = 0;
     let soundEnabled = true;
 
-    // --- PHASE DEFINITIONS CON SOPORTE DE ASSETS PNG ---
+    // --- PHASE DEFINITIONS ---
     const phases = [
         null, // Index 0 is Intro
         {
@@ -17,15 +17,10 @@ document.addEventListener('DOMContentLoaded', () => {
             topic: "DEPÓSITO FISCAL",
             passwords: ["DEPOSITO", "DEPÓSITO"],
             bgImage: "caso1.jpeg",
+            cleanBgImage: "fondo1.jpeg", // Por si suben el fondo recortado
             overlayImage: "assets/caja.png",
             mechanicType: "drag",
-            fallbackClueHTML: `
-                <div class="sat-stamp"><span>🏛️ SAT ADUANAS</span></div>
-                <div class="clue-text">
-                    <strong>CÉDULA DE ALMACENAMIENTO:</strong><br>
-                    Régimen legal de <strong>DEPÓSITO FISCAL</strong> (Art. 119 Ley Aduanera).
-                </div>
-            `
+            redAnswerText: "DEPOSITO"
         },
         {
             id: 2,
@@ -34,16 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
             topic: "LOCALES Y MERCANCÍAS DAÑADAS",
             passwords: ["NO"],
             bgImage: "caso2.jpeg",
+            cleanBgImage: "fondo2.jpeg",
             overlayImage: "assets/lona.png",
             mechanicType: "drain",
-            fallbackClueHTML: `
-                <div class="sat-stamp"><span>🏛️ SAT ADUANAS</span></div>
-                <div class="clue-text">
-                    <strong>DICTAMEN DE AVERÍA ACCIDENTAL:</strong><br>
-                    Tubería rota. ¿Las 500 piezas fueron sustraídas ilegalmente?<br>
-                    <span style="font-size:16px; color:#d32f2f; font-weight:bold; display:block; margin-top:6px;">RESPUESTA: NO</span>
-                </div>
-            `
+            redAnswerText: "NO"
         },
         {
             id: 3,
@@ -52,16 +41,10 @@ document.addEventListener('DOMContentLoaded', () => {
             topic: "TRÁNSITO INTERNO",
             passwords: ["INTERNO", "TRANSITO INTERNO", "TRÁNSITO INTERNO"],
             bgImage: "caso3.png",
+            cleanBgImage: "fondo3.png",
             overlayImage: "assets/barrera.png",
             mechanicType: "scratch",
-            fallbackClueHTML: `
-                <div class="sat-stamp"><span>🏛️ SAT ADUANAS</span></div>
-                <div class="clue-text">
-                    <strong>GUÍA DE TRÁNSITO NACIONAL:</strong><br>
-                    Aduana Nuevo Laredo a Cd. Hidalgo.<br>
-                    <strong>MODALIDAD: TRÁNSITO INTERNO</strong>
-                </div>
-            `
+            redAnswerText: "INTERNO"
         },
         {
             id: 4,
@@ -70,16 +53,10 @@ document.addEventListener('DOMContentLoaded', () => {
             topic: "TRÁNSITO INTERNACIONAL Y PLAZOS",
             passwords: ["IMPORTACION", "IMPORTACIÓN"],
             bgImage: "caso4.jpeg",
+            cleanBgImage: "fondo4.jpeg",
             overlayImage: "assets/llantas.png",
             mechanicType: "dial",
-            fallbackClueHTML: `
-                <div class="sat-stamp"><span>🏛️ SAT ADUANAS</span></div>
-                <div class="clue-text">
-                    <strong>AVISO DE VENCIMIENTO DE PLAZO:</strong><br>
-                    Transcurridos 10 días sin arribo a aduana.<br>
-                    <strong>CONSECUENCIA: IMPORTACIÓN DEFINITIVA</strong>
-                </div>
-            `
+            redAnswerText: "IMPORTACION"
         },
         {
             id: 5,
@@ -88,16 +65,10 @@ document.addEventListener('DOMContentLoaded', () => {
             topic: "RESPONSABILIDADES Y AVISO",
             passwords: ["TRANSPORTISTA"],
             bgImage: "caso5.jpeg",
+            cleanBgImage: "fondo5.jpeg",
             overlayImage: "assets/bitacora.png",
             mechanicType: "longpress",
-            fallbackClueHTML: `
-                <div class="sat-stamp"><span>🏛️ SAT ADUANAS</span></div>
-                <div class="clue-text">
-                    <strong>DICTAMEN DE TELEMETRÍA:</strong><br>
-                    Avería deliberada omitida por el operador.<br>
-                    <strong>SUJETO RESPONSABLE: TRANSPORTISTA</strong>
-                </div>
-            `
+            redAnswerText: "TRANSPORTISTA"
         }
     ];
 
@@ -220,45 +191,55 @@ document.addEventListener('DOMContentLoaded', () => {
         renderPhaseScene(phase);
     }
 
-    // --- RENDER BRAIN OUT SCENE WITH USER'S CROPPED PNG ASSETS ---
+    // --- RENDER SCENE ---
     function renderPhaseScene(phase) {
         stageCanvas.innerHTML = '';
 
         const container = document.createElement('div');
         container.className = 'interactive-scene-wrapper';
 
-        // 1. Imagen de Fondo de la Ilustración
+        // 1. Imagen de Fondo de la Ilustración (Si existe fondo limpio sin objeto, lo usa; si no, usa bgImage)
         const bgImg = document.createElement('img');
-        bgImg.src = phase.bgImage;
+        bgImg.src = phase.cleanBgImage || phase.bgImage;
         bgImg.className = 'bg-case-image';
+        bgImg.onerror = () => {
+            bgImg.src = phase.bgImage; // fallback a bgImage normal si no han subido fondo recortado
+        };
         container.appendChild(bgImg);
 
-        // 2. Documento de Evidencia Revelado
-        const clueDoc = document.createElement('div');
-        clueDoc.className = 'sat-document-clue brain-out-clue';
-        clueDoc.innerHTML = phase.fallbackClueHTML;
-        container.appendChild(clueDoc);
+        // 2. Respuesta en ROJO (Oculta al inicio, SOLO aparece tras realizar la acción)
+        const redAnswerBox = document.createElement('div');
+        redAnswerBox.className = 'red-answer-box hidden';
+        redAnswerBox.innerHTML = `
+            <div class="red-answer-title">RESPUESTA:</div>
+            <div class="red-answer-value">${phase.redAnswerText}</div>
+        `;
+        container.appendChild(redAnswerBox);
 
-        // 3. PNG Interactivo Recortado
+        function revealRedAnswer() {
+            playSound('success');
+            redAnswerBox.classList.remove('hidden');
+        }
+
+        // 3. PNG Interactivo Recortado (Brain Out Overlay)
         const overlayDiv = document.createElement('div');
-        overlayDiv.className = `brain-out-overlay overlay-${phase.mechanicType}`;
+        overlayDiv.className = `brain-out-overlay overlay-phase-${phase.id}`;
 
         const pngImg = document.createElement('img');
         pngImg.src = phase.overlayImage;
         pngImg.className = 'overlay-png';
         overlayDiv.appendChild(pngImg);
 
-        // Setup Mechanics for PNG
+        // Configurar Mecánicas de Acción
         if (phase.mechanicType === 'drag') {
             overlayDiv.classList.add('draggable-item');
-            setupDrag(overlayDiv);
+            setupDrag(overlayDiv, revealRedAnswer);
 
         } else if (phase.mechanicType === 'drain') {
             overlayDiv.style.cursor = 'pointer';
-            overlayDiv.title = 'Toca para levantar/vaciar';
             overlayDiv.addEventListener('click', () => {
                 overlayDiv.classList.add('drained');
-                playSound('beep');
+                revealRedAnswer();
             });
 
         } else if (phase.mechanicType === 'scratch') {
@@ -267,7 +248,10 @@ document.addEventListener('DOMContentLoaded', () => {
             function doScratch() {
                 touches++;
                 playSound('beep');
-                if (touches >= 2) overlayDiv.classList.add('scratched');
+                if (touches >= 2) {
+                    overlayDiv.classList.add('scratched');
+                    revealRedAnswer();
+                }
             }
             overlayDiv.addEventListener('click', doScratch);
             overlayDiv.addEventListener('touchmove', doScratch, { passive: true });
@@ -279,8 +263,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentRotation += 90;
                 overlayDiv.style.transform = `rotate(${currentRotation}deg)`;
                 playSound('beep');
-                if (currentRotation >= 360) {
+                if (currentRotation >= 180) {
                     overlayDiv.classList.add('drained');
+                    revealRedAnswer();
                 }
             });
 
@@ -293,12 +278,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 progressVal = 0;
                 playSound('beep');
                 progressInterval = setInterval(() => {
-                    progressVal += 20;
-                    overlayDiv.style.opacity = 1 - (progressVal / 120);
+                    progressVal += 25;
+                    overlayDiv.style.opacity = 1 - (progressVal / 100);
                     if (progressVal >= 100) {
                         clearInterval(progressInterval);
-                        playSound('success');
                         overlayDiv.classList.add('drained');
+                        revealRedAnswer();
                     }
                 }, 150);
             }
@@ -322,7 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
         stageCanvas.appendChild(container);
     }
 
-    function setupDrag(item) {
+    function setupDrag(item, onReleaseCallback) {
         let isDragging = false;
         let startX, startY;
 
@@ -337,14 +322,17 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!isDragging) return;
             isDragging = false;
             item.classList.add('dragged');
-            playSound('beep');
+            if (onReleaseCallback) onReleaseCallback();
         }
 
         item.addEventListener('mousedown', start);
         window.addEventListener('mouseup', end);
         item.addEventListener('touchstart', start, { passive: true });
         window.addEventListener('touchend', end);
-        item.addEventListener('click', () => item.classList.add('dragged'));
+        item.addEventListener('click', () => {
+            item.classList.add('dragged');
+            if (onReleaseCallback) onReleaseCallback();
+        });
     }
 
     // --- PASSWORD SUBMISSION ---
