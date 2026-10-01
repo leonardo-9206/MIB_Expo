@@ -1,5 +1,5 @@
 /* ==========================================================================
-   M.I.B. SECCIÓN ADUANAS - CASOS DE INVESTIGACIÓN CON IMÁGENES DEDICADAS
+   M.I.B. SECCIÓN ADUANAS - ENGINE BRAIN OUT CON ASSETS PNG PERSONALIZADOS
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPhaseIndex = 0;
     let soundEnabled = true;
 
-    // --- PHASE DEFINITIONS ---
+    // --- PHASE DEFINITIONS CON SOPORTE DE ASSETS PNG ---
     const phases = [
         null, // Index 0 is Intro
         {
@@ -16,7 +16,17 @@ document.addEventListener('DOMContentLoaded', () => {
             agent: "ANDY",
             topic: "DEPÓSITO FISCAL",
             passwords: ["DEPOSITO", "DEPÓSITO"],
-            imageSrc: "caso1.jpeg"
+            bgImage: "caso1.jpeg",
+            overlayImage: "assets/caja.png",
+            clueImage: "assets/documento_deposito.png",
+            mechanicType: "drag",
+            fallbackClueHTML: `
+                <div class="sat-stamp"><span>🏛️ SAT ADUANAS</span></div>
+                <div class="clue-text">
+                    <strong>CÉDULA DE ALMACENAMIENTO:</strong><br>
+                    Régimen legal de <strong>DEPÓSITO FISCAL</strong> (Art. 119 Ley Aduanera).
+                </div>
+            `
         },
         {
             id: 2,
@@ -24,7 +34,18 @@ document.addEventListener('DOMContentLoaded', () => {
             agent: "MICH",
             topic: "LOCALES Y MERCANCÍAS DAÑADAS",
             passwords: ["NO"],
-            imageSrc: "caso2.jpeg"
+            bgImage: "caso2.jpeg",
+            overlayImage: "assets/lona.png",
+            clueImage: "assets/chips_danados.png",
+            mechanicType: "drain",
+            fallbackClueHTML: `
+                <div class="sat-stamp"><span>🏛️ SAT ADUANAS</span></div>
+                <div class="clue-text">
+                    <strong>DICTAMEN DE AVERÍA ACCIDENTAL:</strong><br>
+                    Tubería rota. ¿Las 500 piezas fueron sustraídas ilegalmente?<br>
+                    <span style="font-size:16px; color:#d32f2f; font-weight:bold; display:block; margin-top:6px;">RESPUESTA: NO</span>
+                </div>
+            `
         },
         {
             id: 3,
@@ -32,7 +53,18 @@ document.addEventListener('DOMContentLoaded', () => {
             agent: "EMILY",
             topic: "TRÁNSITO INTERNO",
             passwords: ["INTERNO", "TRANSITO INTERNO", "TRÁNSITO INTERNO"],
-            imageSrc: "caso3.png"
+            bgImage: "caso3.png",
+            overlayImage: "assets/barrera.png",
+            clueImage: "assets/documento_transito.png",
+            mechanicType: "scratch",
+            fallbackClueHTML: `
+                <div class="sat-stamp"><span>🏛️ SAT ADUANAS</span></div>
+                <div class="clue-text">
+                    <strong>GUÍA DE TRÁNSITO NACIONAL:</strong><br>
+                    Aduana Nuevo Laredo a Cd. Hidalgo.<br>
+                    <strong>MODALIDAD: TRÁNSITO INTERNO</strong>
+                </div>
+            `
         },
         {
             id: 4,
@@ -40,7 +72,18 @@ document.addEventListener('DOMContentLoaded', () => {
             agent: "LIZ",
             topic: "TRÁNSITO INTERNACIONAL Y PLAZOS",
             passwords: ["IMPORTACION", "IMPORTACIÓN"],
-            imageSrc: "caso4.jpeg"
+            bgImage: "caso4.jpeg",
+            overlayImage: "assets/llantas.png",
+            clueImage: "assets/documento_plazos.png",
+            mechanicType: "dial",
+            fallbackClueHTML: `
+                <div class="sat-stamp"><span>🏛️ SAT ADUANAS</span></div>
+                <div class="clue-text">
+                    <strong>AVISO DE VENCIMIENTO DE PLAZO:</strong><br>
+                    Transcurridos 10 días sin arribo a aduana.<br>
+                    <strong>CONSECUENCIA: IMPORTACIÓN DEFINITIVA</strong>
+                </div>
+            `
         },
         {
             id: 5,
@@ -48,7 +91,18 @@ document.addEventListener('DOMContentLoaded', () => {
             agent: "ILSE",
             topic: "RESPONSABILIDADES Y AVISO",
             passwords: ["TRANSPORTISTA"],
-            imageSrc: "caso5.jpeg"
+            bgImage: "caso5.jpeg",
+            overlayImage: "assets/bitacora.png",
+            clueImage: "assets/contrato_chofer.png",
+            mechanicType: "longpress",
+            fallbackClueHTML: `
+                <div class="sat-stamp"><span>🏛️ SAT ADUANAS</span></div>
+                <div class="clue-text">
+                    <strong>DICTAMEN DE TELEMETRÍA:</strong><br>
+                    Avería deliberada omitida por el operador.<br>
+                    <strong>SUJETO RESPONSABLE: TRANSPORTISTA</strong>
+                </div>
+            `
         }
     ];
 
@@ -171,20 +225,163 @@ document.addEventListener('DOMContentLoaded', () => {
         renderPhaseScene(phase);
     }
 
-    // --- RENDER SCENE (MUESTRA LA IMAGEN DEL CASO) ---
+    // --- RENDER BRAIN OUT SCENE WITH PNG OVERLAYS ---
     function renderPhaseScene(phase) {
         stageCanvas.innerHTML = '';
-        
-        const imgContainer = document.createElement('div');
-        imgContainer.className = 'case-image-wrapper';
-        
-        const img = document.createElement('img');
-        img.src = phase.imageSrc;
-        img.alt = `Escena de investigación ${phase.title}`;
-        img.className = 'case-image';
 
-        imgContainer.appendChild(img);
-        stageCanvas.appendChild(imgContainer);
+        const container = document.createElement('div');
+        container.className = 'interactive-scene-wrapper';
+
+        // 1. Imagen de Fondo de la Ilustración
+        const bgImg = document.createElement('img');
+        bgImg.src = phase.bgImage;
+        bgImg.className = 'bg-case-image';
+        container.appendChild(bgImg);
+
+        // 2. Documento / Pista de Evidencia Oculta
+        const clueDoc = document.createElement('div');
+        clueDoc.className = 'sat-document-clue brain-out-clue';
+        clueDoc.innerHTML = phase.fallbackClueHTML;
+        container.appendChild(clueDoc);
+
+        // 3. Objeto Interactivo PNG (Brain Out)
+        if (phase.mechanicType === 'drag') {
+            const dragItem = document.createElement('div');
+            dragItem.className = 'brain-out-overlay draggable-item';
+            
+            const imgEl = document.createElement('img');
+            imgEl.src = phase.overlayImage;
+            imgEl.className = 'overlay-png';
+            imgEl.onerror = () => {
+                // Fallback a caja estilizada si aún no han puesto el PNG recortado
+                dragItem.innerHTML = `<div class="fallback-box">📦 Arrastrar caja Q-900</div>`;
+            };
+
+            dragItem.appendChild(imgEl);
+            setupDrag(dragItem);
+            container.appendChild(dragItem);
+
+        } else if (phase.mechanicType === 'drain') {
+            const waterOverlay = document.createElement('div');
+            waterOverlay.className = 'brain-out-overlay water-leak-overlay';
+            waterOverlay.innerHTML = `
+                <span style="font-size:32px;">💧💧</span>
+                <button class="drain-btn">🚰 Drenar agua</button>
+            `;
+            
+            function drainWater() {
+                waterOverlay.classList.add('drained');
+                playSound('beep');
+            }
+            waterOverlay.addEventListener('click', drainWater);
+            container.appendChild(waterOverlay);
+
+        } else if (phase.mechanicType === 'scratch') {
+            const scratchCover = document.createElement('div');
+            scratchCover.className = 'brain-out-overlay scratch-cover';
+            scratchCover.innerHTML = `
+                <div style="text-align:center;">
+                    <span style="font-size:26px;">🧽</span><br>
+                    <strong>Frota para desempañar</strong>
+                </div>
+            `;
+            let touches = 0;
+            function doScratch() {
+                touches++;
+                playSound('beep');
+                if (touches >= 2) scratchCover.classList.add('scratched');
+            }
+            scratchCover.addEventListener('click', doScratch);
+            scratchCover.addEventListener('touchmove', doScratch, { passive: true });
+            container.appendChild(scratchCover);
+
+        } else if (phase.mechanicType === 'dial') {
+            const dialKnob = document.createElement('div');
+            dialKnob.className = 'brain-out-overlay dial-knob';
+            dialKnob.innerHTML = `
+                <div style="text-align:center;">
+                    <div class="dial-pointer"></div>
+                    <span style="color:#00ff66; font-size:10px; font-family:monospace;">⏳ 3 DÍAS</span>
+                </div>
+            `;
+            let currentRotation = 0;
+            dialKnob.addEventListener('click', () => {
+                currentRotation += 90;
+                dialKnob.style.transform = `rotate(${currentRotation}deg)`;
+                playSound('beep');
+            });
+            container.appendChild(dialKnob);
+
+        } else if (phase.mechanicType === 'longpress') {
+            const scannerPad = document.createElement('div');
+            scannerPad.className = 'brain-out-overlay scanner-pad';
+            scannerPad.innerHTML = `
+                <span style="font-size:24px;">📋</span>
+                <span>Mantén presionado 1.5s</span>
+                <div class="scanner-progress" id="scanner-bar"></div>
+            `;
+
+            let progressInterval = null;
+            let progressVal = 0;
+            const progressBar = scannerPad.querySelector('#scanner-bar');
+
+            function startPress() {
+                progressVal = 0;
+                playSound('beep');
+                progressInterval = setInterval(() => {
+                    progressVal += 10;
+                    progressBar.style.width = `${progressVal}%`;
+                    if (progressVal >= 100) {
+                        clearInterval(progressInterval);
+                        playSound('success');
+                        scannerPad.style.borderColor = '#00ff66';
+                        scannerPad.innerHTML = '<span style="font-size:20px; color:#00ff66;">✔ ESCANEO OK</span>';
+                    }
+                }, 120);
+            }
+
+            function cancelPress() {
+                clearInterval(progressInterval);
+                if (progressVal < 100) {
+                    progressVal = 0;
+                    progressBar.style.width = '0%';
+                }
+            }
+
+            scannerPad.addEventListener('mousedown', startPress);
+            scannerPad.addEventListener('mouseup', cancelPress);
+            scannerPad.addEventListener('mouseleave', cancelPress);
+            scannerPad.addEventListener('touchstart', startPress, { passive: true });
+            scannerPad.addEventListener('touchend', cancelPress);
+            container.appendChild(scannerPad);
+        }
+
+        stageCanvas.appendChild(container);
+    }
+
+    function setupDrag(item) {
+        let isDragging = false;
+        let startX, startY;
+
+        function start(e) {
+            isDragging = true;
+            startX = e.clientX || (e.touches && e.touches[0].clientX);
+            startY = e.clientY || (e.touches && e.touches[0].clientY);
+            playSound('beep');
+        }
+
+        function end() {
+            if (!isDragging) return;
+            isDragging = false;
+            item.classList.add('dragged');
+            playSound('beep');
+        }
+
+        item.addEventListener('mousedown', start);
+        window.addEventListener('mouseup', end);
+        item.addEventListener('touchstart', start, { passive: true });
+        window.addEventListener('touchend', end);
+        item.addEventListener('click', () => item.classList.add('dragged'));
     }
 
     // --- PASSWORD SUBMISSION ---
@@ -224,14 +421,12 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound('success');
     }
 
-    // Neutralizer memory wipe button action -> triggers flash and returns to start screen
     btnFlashNeuralyzer.addEventListener('click', () => {
         playSound('zap');
         neutralizerFlash.classList.add('active');
         
         setTimeout(() => {
             neutralizerFlash.classList.remove('active');
-            // Reset to Intro screen
             screenEpilogue.classList.add('hidden');
             screenGame.classList.add('hidden');
             screenIntro.classList.remove('hidden');
