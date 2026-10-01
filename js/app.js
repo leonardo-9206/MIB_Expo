@@ -1,5 +1,5 @@
 /* ==========================================================================
-   M.I.B. SECCIÓN ADUANAS - ENGINE BRAIN OUT CON ARRASTRE REAL Y GIROSCOPIO
+   M.I.B. SECCIÓN ADUANAS - ENGINE BRAIN OUT CON ESCÁNER LÁSER Y FONDOS LIMPIOS
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
             bgImage: "assets/fondo2.png",
             fallbackBgImage: "caso2.jpeg",
             overlayImage: "assets/lona.png",
-            mechanicType: "tilt", // Giroscopio / Arrastrar
+            mechanicType: "drag",
             redAnswerText: "NO"
         },
         {
@@ -59,14 +59,14 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         {
             id: 5,
-            title: "DESBLOQUEAR CASO 5",
+            title: "DESBLOQUEAR CASO 5 (GRAN FINAL)",
             agent: "ILSE",
             topic: "RESPONSABILIDADES Y AVISO",
             passwords: ["TRANSPORTISTA"],
             bgImage: "assets/fondo5.png",
             fallbackBgImage: "caso5.jpeg",
             overlayImage: "assets/bitacora.png",
-            mechanicType: "drag",
+            mechanicType: "laser_scan", // Escáner Láser MIB para el Gran Final
             redAnswerText: "TRANSPORTISTA"
         }
     ];
@@ -140,6 +140,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
                 osc.start(now);
                 osc.stop(now + 0.4);
+            } else if (type === 'scan') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(1200, now);
+                osc.frequency.linearRampToValueAtTime(400, now + 0.2);
+                gain.gain.setValueAtTime(0.06, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+                osc.start(now);
+                osc.stop(now + 0.2);
             }
         } catch (e) {
             console.log('Audio error:', e);
@@ -224,24 +232,73 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 3. PNG Interactivo Recortado
         const overlayDiv = document.createElement('div');
-        overlayDiv.className = `brain-out-overlay overlay-phase-${phase.id} draggable-item`;
+        overlayDiv.className = `brain-out-overlay overlay-phase-${phase.id}`;
 
         const pngImg = document.createElement('img');
         pngImg.src = phase.overlayImage;
         pngImg.className = 'overlay-png';
         overlayDiv.appendChild(pngImg);
 
-        // Configurar Mecánica de Arrastre Dinámico (Real Touch & Pointer Drag)
-        setupRealDrag(overlayDiv, revealRedAnswer);
+        // --- SELECCIÓN DE MECÁNICA DE JUEGO ---
+        if (phase.mechanicType === 'laser_scan') {
+            // MECÁNICA GRAN FINAL FASE 5 (ILSE): ESCÁNER LÁSER MIB
+            let scanProgress = 0;
+            let isScanning = false;
+            let scanInterval = null;
 
-        // Configurar Giroscopio en Celular si la fase es tilt (o en cualquiera)
-        if (phase.mechanicType === 'tilt' && window.DeviceOrientationEvent) {
-            window.addEventListener('deviceorientation', (e) => {
-                if (!answerRevealed && (Math.abs(e.gamma) > 25 || Math.abs(e.beta) > 25)) {
-                    overlayDiv.classList.add('tilted');
-                    revealRedAnswer();
-                }
+            const laserLine = document.createElement('div');
+            laserLine.className = 'laser-scanner-line hidden';
+            overlayDiv.appendChild(laserLine);
+
+            function startScan() {
+                if (answerRevealed || isScanning) return;
+                isScanning = true;
+                scanProgress = 0;
+                laserLine.classList.remove('hidden');
+                playSound('scan');
+
+                scanInterval = setInterval(() => {
+                    scanProgress += 20;
+                    playSound('scan');
+                    if (scanProgress >= 100) {
+                        clearInterval(scanInterval);
+                        isScanning = false;
+                        laserLine.classList.add('hidden');
+                        overlayDiv.classList.add('dragged');
+                        revealRedAnswer();
+                    }
+                }, 220);
+            }
+
+            function stopScan() {
+                if (answerRevealed) return;
+                isScanning = false;
+                clearInterval(scanInterval);
+                laserLine.classList.add('hidden');
+            }
+
+            // Tocar/mantener o clic en la bitácora activa el láser
+            overlayDiv.addEventListener('mousedown', startScan);
+            overlayDiv.addEventListener('mouseup', stopScan);
+            overlayDiv.addEventListener('mouseleave', stopScan);
+
+            overlayDiv.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                startScan();
+            }, { passive: false });
+
+            overlayDiv.addEventListener('touchend', stopScan);
+
+            // Clic rápido de respaldo
+            overlayDiv.addEventListener('click', () => {
+                overlayDiv.classList.add('dragged');
+                revealRedAnswer();
             });
+
+        } else {
+            // FASES 1 A 4: ARRASTRE DINÁMICO EN TIEMPO REAL
+            overlayDiv.classList.add('draggable-item');
+            setupRealDrag(overlayDiv, revealRedAnswer);
         }
 
         container.appendChild(overlayDiv);
@@ -277,8 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             item.style.transform = `translate(${currentTransX}px, ${currentTransY}px) rotate(8deg)`;
 
-            // Si se arrastra más de 50px en cualquier dirección, revela la respuesta
-            if (Math.abs(currentTransX) > 50 || Math.abs(currentTransY) > 50) {
+            if (Math.abs(currentTransX) > 40 || Math.abs(currentTransY) > 40) {
                 onReleaseCallback();
             }
         }
@@ -287,7 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!isDragging) return;
             isDragging = false;
             item.style.transition = 'transform 0.3s ease';
-            if (Math.abs(currentTransX) > 30 || Math.abs(currentTransY) > 30) {
+            if (Math.abs(currentTransX) > 25 || Math.abs(currentTransY) > 25) {
                 onReleaseCallback();
             }
         }
@@ -300,7 +356,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('touchmove', onPointerMove, { passive: true });
         window.addEventListener('touchend', onPointerUp);
 
-        // Click / Tap directo de respaldo
         item.addEventListener('click', () => {
             item.classList.add('dragged');
             onReleaseCallback();

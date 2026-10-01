@@ -612,19 +612,63 @@ body {
     position: absolute;
     z-index: 25;
     touch-action: none;
-    cursor: grab;
+    cursor: pointer;
 }
 
-/* Ubicación exacta sobre cada ilustración */
-.overlay-phase-1 { bottom: 40px; right: 80px; }
-.overlay-phase-2 { bottom: 50px; right: 90px; }
-.overlay-phase-3 { bottom: 120px; right: 50px; }
-.overlay-phase-4 { bottom: 30px; right: 70px; }
-.overlay-phase-5 { bottom: 45px; right: 90px; }
+/* Ajustes exactos por posición de cada objeto */
+.overlay-phase-1 { bottom: 35px; right: 75px; }
+.overlay-phase-1 .overlay-png { max-width: 150px; }
+
+.overlay-phase-2 { bottom: 45px; right: 85px; }
+.overlay-phase-2 .overlay-png { max-width: 150px; }
+
+.overlay-phase-3 { bottom: 110px; right: 45px; }
+.overlay-phase-3 .overlay-png { max-width: 140px; }
+
+.overlay-phase-4 { bottom: 25px; right: 65px; }
+.overlay-phase-4 .overlay-png { max-width: 140px; }
+
+/* FASE 5 (AGENTE ILSE) - Reescalado exacto de la Bitácora */
+.overlay-phase-5 { 
+    bottom: 30px; 
+    right: 40px; 
+    position: absolute;
+    z-index: 30;
+}
+
+.overlay-phase-5 .overlay-png { 
+    max-width: 95px !important; 
+    max-height: 95px !important;
+    width: auto;
+    height: auto;
+    filter: drop-shadow(2px 4px 10px rgba(0, 255, 102, 0.4));
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.overlay-phase-5:hover .overlay-png {
+    filter: drop-shadow(0 0 12px var(--cyber-green));
+}
+
+/* Efecto Escáner Láser MIB en la Bitácora (Fase 5) */
+.laser-scanner-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--cyber-green);
+    box-shadow: 0 0 15px var(--cyber-green), 0 0 30px var(--cyber-cyan);
+    z-index: 35;
+    animation: scanLaser 1.2s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+
+@keyframes scanLaser {
+    0% { top: 0%; opacity: 0.4; }
+    100% { top: 95%; opacity: 1; }
+}
 
 .overlay-png {
-    max-width: 160px;
-    max-height: 160px;
     width: auto;
     height: auto;
     filter: drop-shadow(4px 6px 12px rgba(0, 0, 0, 0.6));
@@ -636,22 +680,7 @@ body {
     opacity: 0.85;
 }
 
-.brain-out-overlay.tilted {
-    animation: slideOff 0.8s ease-out forwards;
-}
-
-@keyframes slideOff {
-    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-    100% { transform: translate(150px, 150px) rotate(45deg); opacity: 0; }
-}
-
-.brain-out-overlay.drained {
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(-30px);
-}
-
-/* Revealed Answer Badge in RED (SOLO tras realizar la acción) */
+/* Revealed Answer Badge in RED */
 .red-answer-box {
     position: absolute;
     bottom: 25px;
