@@ -607,11 +607,9 @@ body {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
 }
 
-/* POSICIONAMIENTO EXACTO PARA CUBRIR LA HOJA DEL SAT ABAJO A LA DERECHA */
+/* Brain Out PNG Overlay Positioning */
 .brain-out-overlay {
     position: absolute;
-    bottom: 8%;
-    right: 7%;
     z-index: 25;
     touch-action: none;
     cursor: grab;
@@ -636,10 +634,17 @@ body {
 .overlay-phase-3 { bottom: 6%; right: 6%; }
 .overlay-phase-3 .overlay-png { max-width: 175px; }
 
-.overlay-phase-4 { bottom: 6%; right: 6%; }
-.overlay-phase-4 .overlay-png { max-width: 175px; }
+/* FASE 4 (AGENTE LIZ) - Posicionada más ARRIBA para cubrir el billete blanco "PLAZO EXCEDIDO SIN RETORNO" sin tapar el reloj digital abajo */
+.overlay-phase-4 { 
+    bottom: 24%; 
+    right: 5%; 
+}
+.overlay-phase-4 .overlay-png { 
+    max-width: 185px !important; 
+    max-height: 140px !important;
+}
 
-/* FASE 5 (AGENTE ILSE) - Ajustado exactamente al documento */
+/* FASE 5 (AGENTE ILSE) - Reescalado proporcional exacto de la Bitácora */
 .overlay-phase-5 { 
     bottom: 6%; 
     right: 6%; 
@@ -647,8 +652,8 @@ body {
 }
 
 .overlay-phase-5 .overlay-png { 
-    max-width: 160px !important; 
-    max-height: 160px !important;
+    max-width: 155px !important; 
+    max-height: 155px !important;
     filter: drop-shadow(2px 4px 10px rgba(0, 255, 102, 0.4));
     transition: transform 0.2s ease, filter 0.2s ease;
 }
