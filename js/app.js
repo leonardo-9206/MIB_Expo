@@ -1,5 +1,5 @@
 /* ==========================================================================
-   M.I.B. SECCIÓN ADUANAS - ENGINE BRAIN OUT CON RESPUESTAS EN ROJO TRAS INTERACCIÓN
+   M.I.B. SECCIÓN ADUANAS - ENGINE BRAIN OUT CON FONDOS LIMPIOS Y RESPUESTAS
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
             agent: "ANDY",
             topic: "DEPÓSITO FISCAL",
             passwords: ["DEPOSITO", "DEPÓSITO"],
-            bgImage: "caso1.jpeg",
-            cleanBgImage: "fondo1.jpeg", // Por si suben el fondo recortado
+            bgImage: "assets/fondo1.png",
+            fallbackBgImage: "caso1.jpeg",
             overlayImage: "assets/caja.png",
             mechanicType: "drag",
             redAnswerText: "DEPOSITO"
@@ -28,8 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
             agent: "MICH",
             topic: "LOCALES Y MERCANCÍAS DAÑADAS",
             passwords: ["NO"],
-            bgImage: "caso2.jpeg",
-            cleanBgImage: "fondo2.jpeg",
+            bgImage: "assets/fondo2.png",
+            fallbackBgImage: "caso2.jpeg",
             overlayImage: "assets/lona.png",
             mechanicType: "drain",
             redAnswerText: "NO"
@@ -40,8 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
             agent: "EMILY",
             topic: "TRÁNSITO INTERNO",
             passwords: ["INTERNO", "TRANSITO INTERNO", "TRÁNSITO INTERNO"],
-            bgImage: "caso3.png",
-            cleanBgImage: "fondo3.png",
+            bgImage: "assets/fondo3.png",
+            fallbackBgImage: "caso3.png",
             overlayImage: "assets/barrera.png",
             mechanicType: "scratch",
             redAnswerText: "INTERNO"
@@ -51,12 +51,12 @@ document.addEventListener('DOMContentLoaded', () => {
             title: "DESBLOQUEAR CASO 4",
             agent: "LIZ",
             topic: "TRÁNSITO INTERNACIONAL Y PLAZOS",
-            passwords: ["IMPORTACION", "IMPORTACIÓN"],
-            bgImage: "caso4.jpeg",
-            cleanBgImage: "fondo4.jpeg",
+            passwords: ["DEFINITIVA", "IMPORTACION DEFINITIVA", "IMPORTACIÓN DEFINITIVA", "IMPORTACION", "IMPORTACIÓN"],
+            bgImage: "assets/fondo4.png",
+            fallbackBgImage: "caso4.jpeg",
             overlayImage: "assets/llantas.png",
             mechanicType: "dial",
-            redAnswerText: "IMPORTACION"
+            redAnswerText: "DEFINITIVA"
         },
         {
             id: 5,
@@ -64,8 +64,8 @@ document.addEventListener('DOMContentLoaded', () => {
             agent: "ILSE",
             topic: "RESPONSABILIDADES Y AVISO",
             passwords: ["TRANSPORTISTA"],
-            bgImage: "caso5.jpeg",
-            cleanBgImage: "fondo5.jpeg",
+            bgImage: "assets/fondo5.png",
+            fallbackBgImage: "caso5.jpeg",
             overlayImage: "assets/bitacora.png",
             mechanicType: "longpress",
             redAnswerText: "TRANSPORTISTA"
@@ -191,19 +191,19 @@ document.addEventListener('DOMContentLoaded', () => {
         renderPhaseScene(phase);
     }
 
-    // --- RENDER SCENE ---
+    // --- RENDER SCENE CON FONDOS LIMPIOS DE ASSETS ---
     function renderPhaseScene(phase) {
         stageCanvas.innerHTML = '';
 
         const container = document.createElement('div');
         container.className = 'interactive-scene-wrapper';
 
-        // 1. Imagen de Fondo de la Ilustración (Si existe fondo limpio sin objeto, lo usa; si no, usa bgImage)
+        // 1. Imagen de Fondo Limpio (de assets/fondoX.png)
         const bgImg = document.createElement('img');
-        bgImg.src = phase.cleanBgImage || phase.bgImage;
+        bgImg.src = phase.bgImage;
         bgImg.className = 'bg-case-image';
         bgImg.onerror = () => {
-            bgImg.src = phase.bgImage; // fallback a bgImage normal si no han subido fondo recortado
+            bgImg.src = phase.fallbackBgImage;
         };
         container.appendChild(bgImg);
 
@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
             redAnswerBox.classList.remove('hidden');
         }
 
-        // 3. PNG Interactivo Recortado (Brain Out Overlay)
+        // 3. PNG Interactivo Recortado
         const overlayDiv = document.createElement('div');
         overlayDiv.className = `brain-out-overlay overlay-phase-${phase.id}`;
 
