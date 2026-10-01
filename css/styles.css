@@ -607,49 +607,53 @@ body {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
 }
 
-/* Brain Out PNG Overlay Positioning per Phase */
+/* POSICIONAMIENTO EXACTO PARA CUBRIR LA HOJA DEL SAT ABAJO A LA DERECHA */
 .brain-out-overlay {
     position: absolute;
+    bottom: 8%;
+    right: 7%;
     z-index: 25;
     touch-action: none;
-    cursor: pointer;
+    cursor: grab;
 }
 
-/* Ajustes exactos por posición de cada objeto */
-.overlay-phase-1 { bottom: 35px; right: 75px; }
-.overlay-phase-1 .overlay-png { max-width: 150px; }
+.overlay-png {
+    max-width: 175px;
+    max-height: 175px;
+    width: auto;
+    height: auto;
+    filter: drop-shadow(4px 6px 12px rgba(0, 0, 0, 0.6));
+    pointer-events: auto;
+}
 
-.overlay-phase-2 { bottom: 45px; right: 85px; }
-.overlay-phase-2 .overlay-png { max-width: 150px; }
+/* AJUSTES ESPECÍFICOS DE TAMAÑO Y POSICIÓN POR FASE */
+.overlay-phase-1 { bottom: 6%; right: 6%; }
+.overlay-phase-1 .overlay-png { max-width: 175px; }
 
-.overlay-phase-3 { bottom: 110px; right: 45px; }
-.overlay-phase-3 .overlay-png { max-width: 140px; }
+.overlay-phase-2 { bottom: 6%; right: 6%; }
+.overlay-phase-2 .overlay-png { max-width: 175px; }
 
-.overlay-phase-4 { bottom: 25px; right: 65px; }
-.overlay-phase-4 .overlay-png { max-width: 140px; }
+.overlay-phase-3 { bottom: 6%; right: 6%; }
+.overlay-phase-3 .overlay-png { max-width: 175px; }
 
-/* FASE 5 (AGENTE ILSE) - Reescalado exacto de la Bitácora */
+.overlay-phase-4 { bottom: 6%; right: 6%; }
+.overlay-phase-4 .overlay-png { max-width: 175px; }
+
+/* FASE 5 (AGENTE ILSE) - Ajustado exactamente al documento */
 .overlay-phase-5 { 
-    bottom: 30px; 
-    right: 40px; 
-    position: absolute;
+    bottom: 6%; 
+    right: 6%; 
     z-index: 30;
 }
 
 .overlay-phase-5 .overlay-png { 
-    max-width: 95px !important; 
-    max-height: 95px !important;
-    width: auto;
-    height: auto;
+    max-width: 160px !important; 
+    max-height: 160px !important;
     filter: drop-shadow(2px 4px 10px rgba(0, 255, 102, 0.4));
     transition: transform 0.2s ease, filter 0.2s ease;
 }
 
-.overlay-phase-5:hover .overlay-png {
-    filter: drop-shadow(0 0 12px var(--cyber-green));
-}
-
-/* Efecto Escáner Láser MIB en la Bitácora (Fase 5) */
+/* Escáner Láser MIB */
 .laser-scanner-line {
     position: absolute;
     top: 0;
@@ -668,57 +672,9 @@ body {
     100% { top: 95%; opacity: 1; }
 }
 
-.overlay-png {
-    width: auto;
-    height: auto;
-    filter: drop-shadow(4px 6px 12px rgba(0, 0, 0, 0.6));
-    pointer-events: auto;
-}
-
 .brain-out-overlay.dragged {
-    transform: translate(140px, -60px) rotate(25deg) !important;
-    opacity: 0.85;
-}
-
-/* Revealed Answer Badge in RED */
-.red-answer-box {
-    position: absolute;
-    bottom: 25px;
-    right: 25px;
-    z-index: 15;
-    background: rgba(0, 0, 0, 0.88);
-    border: 2px solid var(--cyber-alert);
-    border-radius: 8px;
-    padding: 10px 18px;
-    text-align: center;
-    box-shadow: 0 0 20px rgba(255, 0, 85, 0.6);
-    animation: revealPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.red-answer-box.hidden {
-    display: none !important;
-}
-
-.red-answer-title {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--text-muted);
-    letter-spacing: 1px;
-    margin-bottom: 2px;
-}
-
-.red-answer-value {
-    font-family: var(--font-heading);
-    font-size: 22px;
-    font-weight: 900;
-    color: var(--cyber-alert);
-    text-shadow: 0 0 10px var(--cyber-alert);
-    letter-spacing: 2px;
-}
-
-@keyframes revealPop {
-    0% { transform: scale(0.6); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
+    transform: translate(180px, -80px) rotate(25deg) !important;
+    opacity: 0.9;
 }
 
 /* Epilogue Screen */

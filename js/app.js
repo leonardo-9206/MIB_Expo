@@ -1,5 +1,5 @@
 /* ==========================================================================
-   M.I.B. SECCIÓN ADUANAS - ENGINE BRAIN OUT CON ESCÁNER LÁSER Y FONDOS LIMPIOS
+   M.I.B. SECCIÓN ADUANAS - ENGINE BRAIN OUT CON CUBRIMIENTO DE DOCUMENTO SAT
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -18,8 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
             bgImage: "assets/fondo1.png",
             fallbackBgImage: "caso1.jpeg",
             overlayImage: "assets/caja.png",
-            mechanicType: "drag",
-            redAnswerText: "DEPOSITO"
+            mechanicType: "drag"
         },
         {
             id: 2,
@@ -30,8 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
             bgImage: "assets/fondo2.png",
             fallbackBgImage: "caso2.jpeg",
             overlayImage: "assets/lona.png",
-            mechanicType: "drag",
-            redAnswerText: "NO"
+            mechanicType: "drag"
         },
         {
             id: 3,
@@ -42,8 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
             bgImage: "assets/fondo3.png",
             fallbackBgImage: "caso3.png",
             overlayImage: "assets/barrera.png",
-            mechanicType: "drag",
-            redAnswerText: "INTERNO"
+            mechanicType: "drag"
         },
         {
             id: 4,
@@ -54,20 +51,18 @@ document.addEventListener('DOMContentLoaded', () => {
             bgImage: "assets/fondo4.png",
             fallbackBgImage: "caso4.jpeg",
             overlayImage: "assets/llantas.png",
-            mechanicType: "drag",
-            redAnswerText: "DEFINITIVA"
+            mechanicType: "drag"
         },
         {
             id: 5,
-            title: "DESBLOQUEAR CASO 5 (GRAN FINAL)",
+            title: "DESBLOQUEAR CASO 5",
             agent: "ILSE",
             topic: "RESPONSABILIDADES Y AVISO",
             passwords: ["TRANSPORTISTA"],
             bgImage: "assets/fondo5.png",
             fallbackBgImage: "caso5.jpeg",
             overlayImage: "assets/bitacora.png",
-            mechanicType: "laser_scan", // Escáner Láser MIB para el Gran Final
-            redAnswerText: "TRANSPORTISTA"
+            mechanicType: "laser_scan" // Escáner Láser MIB
         }
     ];
 
@@ -197,14 +192,14 @@ document.addEventListener('DOMContentLoaded', () => {
         renderPhaseScene(phase);
     }
 
-    // --- RENDERIZADO DE ESCENA BRAIN OUT ---
+    // --- RENDERIZADO DE ESCENA BRAIN OUT CON CUBRIMIENTO DEL DOCUMENTO ---
     function renderPhaseScene(phase) {
         stageCanvas.innerHTML = '';
 
         const container = document.createElement('div');
         container.className = 'interactive-scene-wrapper';
 
-        // 1. Imagen de Fondo Limpio
+        // 1. Imagen de Fondo de la Ilustración (Donde está dibujada la hoja del SAT abajo a la derecha)
         const bgImg = document.createElement('img');
         bgImg.src = phase.bgImage;
         bgImg.className = 'bg-case-image';
@@ -213,24 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         container.appendChild(bgImg);
 
-        // 2. Respuesta en ROJO (Oculta al inicio)
-        const redAnswerBox = document.createElement('div');
-        redAnswerBox.className = 'red-answer-box hidden';
-        redAnswerBox.innerHTML = `
-            <div class="red-answer-title">RESPUESTA:</div>
-            <div class="red-answer-value">${phase.redAnswerText}</div>
-        `;
-        container.appendChild(redAnswerBox);
-
-        let answerRevealed = false;
-        function revealRedAnswer() {
-            if (answerRevealed) return;
-            answerRevealed = true;
-            playSound('success');
-            redAnswerBox.classList.remove('hidden');
-        }
-
-        // 3. PNG Interactivo Recortado
+        // 2. PNG Interactivo Recortado posicionado EXACTAMENTE encima de la hoja del SAT para cubrirla
         const overlayDiv = document.createElement('div');
         overlayDiv.className = `brain-out-overlay overlay-phase-${phase.id}`;
 
@@ -239,9 +217,8 @@ document.addEventListener('DOMContentLoaded', () => {
         pngImg.className = 'overlay-png';
         overlayDiv.appendChild(pngImg);
 
-        // --- SELECCIÓN DE MECÁNICA DE JUEGO ---
+        // MECÁNICA DE ESCÁNER LÁSER PARA FASE 5
         if (phase.mechanicType === 'laser_scan') {
-            // MECÁNICA GRAN FINAL FASE 5 (ILSE): ESCÁNER LÁSER MIB
             let scanProgress = 0;
             let isScanning = false;
             let scanInterval = null;
@@ -251,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
             overlayDiv.appendChild(laserLine);
 
             function startScan() {
-                if (answerRevealed || isScanning) return;
+                if (isScanning) return;
                 isScanning = true;
                 scanProgress = 0;
                 laserLine.classList.remove('hidden');
@@ -265,19 +242,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         isScanning = false;
                         laserLine.classList.add('hidden');
                         overlayDiv.classList.add('dragged');
-                        revealRedAnswer();
+                        playSound('success');
                     }
-                }, 220);
+                }, 200);
             }
 
             function stopScan() {
-                if (answerRevealed) return;
                 isScanning = false;
                 clearInterval(scanInterval);
                 laserLine.classList.add('hidden');
             }
 
-            // Tocar/mantener o clic en la bitácora activa el láser
             overlayDiv.addEventListener('mousedown', startScan);
             overlayDiv.addEventListener('mouseup', stopScan);
             overlayDiv.addEventListener('mouseleave', stopScan);
@@ -289,24 +264,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
             overlayDiv.addEventListener('touchend', stopScan);
 
-            // Clic rápido de respaldo
             overlayDiv.addEventListener('click', () => {
                 overlayDiv.classList.add('dragged');
-                revealRedAnswer();
+                playSound('success');
             });
 
         } else {
-            // FASES 1 A 4: ARRASTRE DINÁMICO EN TIEMPO REAL
+            // FASES 1 A 4: ARRASTRE REAL EN TIEMPO REAL
             overlayDiv.classList.add('draggable-item');
-            setupRealDrag(overlayDiv, revealRedAnswer);
+            setupRealDrag(overlayDiv);
         }
 
         container.appendChild(overlayDiv);
         stageCanvas.appendChild(container);
     }
 
-    // ARRASTRE REAL EN TIEMPO REAL (Touch & Pointer)
-    function setupRealDrag(item, onReleaseCallback) {
+    // ARRASTRE REAL EN TIEMPO REAL
+    function setupRealDrag(item) {
         let isDragging = false;
         let startX, startY, currentTransX = 0, currentTransY = 0;
 
@@ -333,10 +307,6 @@ document.addEventListener('DOMContentLoaded', () => {
             currentTransY = coord.y - startY;
 
             item.style.transform = `translate(${currentTransX}px, ${currentTransY}px) rotate(8deg)`;
-
-            if (Math.abs(currentTransX) > 40 || Math.abs(currentTransY) > 40) {
-                onReleaseCallback();
-            }
         }
 
         function onPointerUp() {
@@ -344,7 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
             isDragging = false;
             item.style.transition = 'transform 0.3s ease';
             if (Math.abs(currentTransX) > 25 || Math.abs(currentTransY) > 25) {
-                onReleaseCallback();
+                playSound('success');
             }
         }
 
@@ -358,7 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         item.addEventListener('click', () => {
             item.classList.add('dragged');
-            onReleaseCallback();
+            playSound('success');
         });
     }
 
