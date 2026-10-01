@@ -1,5 +1,5 @@
 /* ==========================================================================
-   M.I.B. SECCIÓN ADUANAS - ENGINE BRAIN OUT CON CUBRIMIENTO DE DOCUMENTO SAT
+   M.I.B. SECCIÓN ADUANAS - ENGINE BRAIN OUT CON FONDOS Y FLEXIBILIDAD EN CLAVES
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
             title: "DESBLOQUEAR CASO 1",
             agent: "ANDY",
             topic: "DEPÓSITO FISCAL",
-            passwords: ["DEPOSITO", "DEPÓSITO"],
+            passwords: ["DEPOSITO", "DEPÓSITO", "DEPOSITO FISCAL", "DEPÓSITO FISCAL"],
             bgImage: "assets/fondo1.png",
             fallbackBgImage: "caso1.jpeg",
             overlayImage: "assets/caja.png",
@@ -192,14 +192,14 @@ document.addEventListener('DOMContentLoaded', () => {
         renderPhaseScene(phase);
     }
 
-    // --- RENDERIZADO DE ESCENA BRAIN OUT CON CUBRIMIENTO DEL DOCUMENTO ---
+    // --- RENDERIZADO DE ESCENA BRAIN OUT ---
     function renderPhaseScene(phase) {
         stageCanvas.innerHTML = '';
 
         const container = document.createElement('div');
         container.className = 'interactive-scene-wrapper';
 
-        // 1. Imagen de Fondo de la Ilustración (Donde está dibujada la hoja del SAT abajo a la derecha)
+        // 1. Imagen de Fondo de la Ilustración
         const bgImg = document.createElement('img');
         bgImg.src = phase.bgImage;
         bgImg.className = 'bg-case-image';
@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         container.appendChild(bgImg);
 
-        // 2. PNG Interactivo Recortado posicionado EXACTAMENTE encima de la hoja del SAT para cubrirla
+        // 2. PNG Interactivo Recortado
         const overlayDiv = document.createElement('div');
         overlayDiv.className = `brain-out-overlay overlay-phase-${phase.id}`;
 
