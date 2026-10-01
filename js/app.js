@@ -1,5 +1,5 @@
 /* ==========================================================================
-   M.I.B. SECCIÓN ADUANAS - ENGINE BRAIN OUT CON ASSETS PNG PERSONALIZADOS
+   M.I.B. SECCIÓN ADUANAS - ENGINE BRAIN OUT CON ASSETS PNG RECOR TADOS
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
             passwords: ["DEPOSITO", "DEPÓSITO"],
             bgImage: "caso1.jpeg",
             overlayImage: "assets/caja.png",
-            clueImage: "assets/documento_deposito.png",
             mechanicType: "drag",
             fallbackClueHTML: `
                 <div class="sat-stamp"><span>🏛️ SAT ADUANAS</span></div>
@@ -36,7 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
             passwords: ["NO"],
             bgImage: "caso2.jpeg",
             overlayImage: "assets/lona.png",
-            clueImage: "assets/chips_danados.png",
             mechanicType: "drain",
             fallbackClueHTML: `
                 <div class="sat-stamp"><span>🏛️ SAT ADUANAS</span></div>
@@ -55,7 +53,6 @@ document.addEventListener('DOMContentLoaded', () => {
             passwords: ["INTERNO", "TRANSITO INTERNO", "TRÁNSITO INTERNO"],
             bgImage: "caso3.png",
             overlayImage: "assets/barrera.png",
-            clueImage: "assets/documento_transito.png",
             mechanicType: "scratch",
             fallbackClueHTML: `
                 <div class="sat-stamp"><span>🏛️ SAT ADUANAS</span></div>
@@ -74,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
             passwords: ["IMPORTACION", "IMPORTACIÓN"],
             bgImage: "caso4.jpeg",
             overlayImage: "assets/llantas.png",
-            clueImage: "assets/documento_plazos.png",
             mechanicType: "dial",
             fallbackClueHTML: `
                 <div class="sat-stamp"><span>🏛️ SAT ADUANAS</span></div>
@@ -93,7 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
             passwords: ["TRANSPORTISTA"],
             bgImage: "caso5.jpeg",
             overlayImage: "assets/bitacora.png",
-            clueImage: "assets/contrato_chofer.png",
             mechanicType: "longpress",
             fallbackClueHTML: `
                 <div class="sat-stamp"><span>🏛️ SAT ADUANAS</span></div>
@@ -225,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderPhaseScene(phase);
     }
 
-    // --- RENDER BRAIN OUT SCENE WITH PNG OVERLAYS ---
+    // --- RENDER BRAIN OUT SCENE WITH USER'S CROPPED PNG ASSETS ---
     function renderPhaseScene(phase) {
         stageCanvas.innerHTML = '';
 
@@ -238,124 +233,92 @@ document.addEventListener('DOMContentLoaded', () => {
         bgImg.className = 'bg-case-image';
         container.appendChild(bgImg);
 
-        // 2. Documento / Pista de Evidencia Oculta
+        // 2. Documento de Evidencia Revelado
         const clueDoc = document.createElement('div');
         clueDoc.className = 'sat-document-clue brain-out-clue';
         clueDoc.innerHTML = phase.fallbackClueHTML;
         container.appendChild(clueDoc);
 
-        // 3. Objeto Interactivo PNG (Brain Out)
-        if (phase.mechanicType === 'drag') {
-            const dragItem = document.createElement('div');
-            dragItem.className = 'brain-out-overlay draggable-item';
-            
-            const imgEl = document.createElement('img');
-            imgEl.src = phase.overlayImage;
-            imgEl.className = 'overlay-png';
-            imgEl.onerror = () => {
-                // Fallback a caja estilizada si aún no han puesto el PNG recortado
-                dragItem.innerHTML = `<div class="fallback-box">📦 Arrastrar caja Q-900</div>`;
-            };
+        // 3. PNG Interactivo Recortado
+        const overlayDiv = document.createElement('div');
+        overlayDiv.className = `brain-out-overlay overlay-${phase.mechanicType}`;
 
-            dragItem.appendChild(imgEl);
-            setupDrag(dragItem);
-            container.appendChild(dragItem);
+        const pngImg = document.createElement('img');
+        pngImg.src = phase.overlayImage;
+        pngImg.className = 'overlay-png';
+        overlayDiv.appendChild(pngImg);
+
+        // Setup Mechanics for PNG
+        if (phase.mechanicType === 'drag') {
+            overlayDiv.classList.add('draggable-item');
+            setupDrag(overlayDiv);
 
         } else if (phase.mechanicType === 'drain') {
-            const waterOverlay = document.createElement('div');
-            waterOverlay.className = 'brain-out-overlay water-leak-overlay';
-            waterOverlay.innerHTML = `
-                <span style="font-size:32px;">💧💧</span>
-                <button class="drain-btn">🚰 Drenar agua</button>
-            `;
-            
-            function drainWater() {
-                waterOverlay.classList.add('drained');
+            overlayDiv.style.cursor = 'pointer';
+            overlayDiv.title = 'Toca para levantar/vaciar';
+            overlayDiv.addEventListener('click', () => {
+                overlayDiv.classList.add('drained');
                 playSound('beep');
-            }
-            waterOverlay.addEventListener('click', drainWater);
-            container.appendChild(waterOverlay);
+            });
 
         } else if (phase.mechanicType === 'scratch') {
-            const scratchCover = document.createElement('div');
-            scratchCover.className = 'brain-out-overlay scratch-cover';
-            scratchCover.innerHTML = `
-                <div style="text-align:center;">
-                    <span style="font-size:26px;">🧽</span><br>
-                    <strong>Frota para desempañar</strong>
-                </div>
-            `;
+            overlayDiv.style.cursor = 'pointer';
             let touches = 0;
             function doScratch() {
                 touches++;
                 playSound('beep');
-                if (touches >= 2) scratchCover.classList.add('scratched');
+                if (touches >= 2) overlayDiv.classList.add('scratched');
             }
-            scratchCover.addEventListener('click', doScratch);
-            scratchCover.addEventListener('touchmove', doScratch, { passive: true });
-            container.appendChild(scratchCover);
+            overlayDiv.addEventListener('click', doScratch);
+            overlayDiv.addEventListener('touchmove', doScratch, { passive: true });
 
         } else if (phase.mechanicType === 'dial') {
-            const dialKnob = document.createElement('div');
-            dialKnob.className = 'brain-out-overlay dial-knob';
-            dialKnob.innerHTML = `
-                <div style="text-align:center;">
-                    <div class="dial-pointer"></div>
-                    <span style="color:#00ff66; font-size:10px; font-family:monospace;">⏳ 3 DÍAS</span>
-                </div>
-            `;
+            overlayDiv.style.cursor = 'pointer';
             let currentRotation = 0;
-            dialKnob.addEventListener('click', () => {
+            overlayDiv.addEventListener('click', () => {
                 currentRotation += 90;
-                dialKnob.style.transform = `rotate(${currentRotation}deg)`;
+                overlayDiv.style.transform = `rotate(${currentRotation}deg)`;
                 playSound('beep');
+                if (currentRotation >= 360) {
+                    overlayDiv.classList.add('drained');
+                }
             });
-            container.appendChild(dialKnob);
 
         } else if (phase.mechanicType === 'longpress') {
-            const scannerPad = document.createElement('div');
-            scannerPad.className = 'brain-out-overlay scanner-pad';
-            scannerPad.innerHTML = `
-                <span style="font-size:24px;">📋</span>
-                <span>Mantén presionado 1.5s</span>
-                <div class="scanner-progress" id="scanner-bar"></div>
-            `;
-
+            overlayDiv.style.cursor = 'pointer';
             let progressInterval = null;
             let progressVal = 0;
-            const progressBar = scannerPad.querySelector('#scanner-bar');
 
             function startPress() {
                 progressVal = 0;
                 playSound('beep');
                 progressInterval = setInterval(() => {
-                    progressVal += 10;
-                    progressBar.style.width = `${progressVal}%`;
+                    progressVal += 20;
+                    overlayDiv.style.opacity = 1 - (progressVal / 120);
                     if (progressVal >= 100) {
                         clearInterval(progressInterval);
                         playSound('success');
-                        scannerPad.style.borderColor = '#00ff66';
-                        scannerPad.innerHTML = '<span style="font-size:20px; color:#00ff66;">✔ ESCANEO OK</span>';
+                        overlayDiv.classList.add('drained');
                     }
-                }, 120);
+                }, 150);
             }
 
             function cancelPress() {
                 clearInterval(progressInterval);
                 if (progressVal < 100) {
                     progressVal = 0;
-                    progressBar.style.width = '0%';
+                    overlayDiv.style.opacity = 1;
                 }
             }
 
-            scannerPad.addEventListener('mousedown', startPress);
-            scannerPad.addEventListener('mouseup', cancelPress);
-            scannerPad.addEventListener('mouseleave', cancelPress);
-            scannerPad.addEventListener('touchstart', startPress, { passive: true });
-            scannerPad.addEventListener('touchend', cancelPress);
-            container.appendChild(scannerPad);
+            overlayDiv.addEventListener('mousedown', startPress);
+            overlayDiv.addEventListener('mouseup', cancelPress);
+            overlayDiv.addEventListener('mouseleave', cancelPress);
+            overlayDiv.addEventListener('touchstart', startPress, { passive: true });
+            overlayDiv.addEventListener('touchend', cancelPress);
         }
 
+        container.appendChild(overlayDiv);
         stageCanvas.appendChild(container);
     }
 
