@@ -1,13 +1,12 @@
 /* ==========================================================================
-   M.I.B. SECCIÓN ADUANAS - ENGINE BRAIN OUT CON FONDOS LIMPIOS Y RESPUESTAS
+   M.I.B. SECCIÓN ADUANAS - ENGINE BRAIN OUT CON ARRASTRE REAL Y GIROSCOPIO
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
-    // --- STATE MANAGEMENT ---
     let currentPhaseIndex = 0;
     let soundEnabled = true;
 
-    // --- PHASE DEFINITIONS ---
+    // --- DEFINICIÓN DE FASES Y ASSETS ---
     const phases = [
         null, // Index 0 is Intro
         {
@@ -31,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
             bgImage: "assets/fondo2.png",
             fallbackBgImage: "caso2.jpeg",
             overlayImage: "assets/lona.png",
-            mechanicType: "drain",
+            mechanicType: "tilt", // Giroscopio / Arrastrar
             redAnswerText: "NO"
         },
         {
@@ -43,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
             bgImage: "assets/fondo3.png",
             fallbackBgImage: "caso3.png",
             overlayImage: "assets/barrera.png",
-            mechanicType: "scratch",
+            mechanicType: "drag",
             redAnswerText: "INTERNO"
         },
         {
@@ -55,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
             bgImage: "assets/fondo4.png",
             fallbackBgImage: "caso4.jpeg",
             overlayImage: "assets/llantas.png",
-            mechanicType: "dial",
+            mechanicType: "drag",
             redAnswerText: "DEFINITIVA"
         },
         {
@@ -67,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
             bgImage: "assets/fondo5.png",
             fallbackBgImage: "caso5.jpeg",
             overlayImage: "assets/bitacora.png",
-            mechanicType: "longpress",
+            mechanicType: "drag",
             redAnswerText: "TRANSPORTISTA"
         }
     ];
@@ -90,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnFlashNeuralyzer = document.getElementById('btn-flash-neuralyzer');
     const neutralizerFlash = document.getElementById('neutralizer-flash');
 
-    // --- WEB AUDIO SYNTHESIZER ---
+    // --- AUDIO SYNTHESIZER ---
     let audioCtx = null;
     function initAudio() {
         if (!audioCtx) {
@@ -171,7 +170,6 @@ document.addEventListener('DOMContentLoaded', () => {
         startPhase(1);
     });
 
-    // --- START PHASE ---
     function startPhase(phaseNum) {
         currentPhaseIndex = phaseNum;
         const phase = phases[phaseNum];
@@ -191,14 +189,14 @@ document.addEventListener('DOMContentLoaded', () => {
         renderPhaseScene(phase);
     }
 
-    // --- RENDER SCENE CON FONDOS LIMPIOS DE ASSETS ---
+    // --- RENDERIZADO DE ESCENA BRAIN OUT ---
     function renderPhaseScene(phase) {
         stageCanvas.innerHTML = '';
 
         const container = document.createElement('div');
         container.className = 'interactive-scene-wrapper';
 
-        // 1. Imagen de Fondo Limpio (de assets/fondoX.png)
+        // 1. Imagen de Fondo Limpio
         const bgImg = document.createElement('img');
         bgImg.src = phase.bgImage;
         bgImg.className = 'bg-case-image';
@@ -207,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         container.appendChild(bgImg);
 
-        // 2. Respuesta en ROJO (Oculta al inicio, SOLO aparece tras realizar la acción)
+        // 2. Respuesta en ROJO (Oculta al inicio)
         const redAnswerBox = document.createElement('div');
         redAnswerBox.className = 'red-answer-box hidden';
         redAnswerBox.innerHTML = `
@@ -216,126 +214,100 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         container.appendChild(redAnswerBox);
 
+        let answerRevealed = false;
         function revealRedAnswer() {
+            if (answerRevealed) return;
+            answerRevealed = true;
             playSound('success');
             redAnswerBox.classList.remove('hidden');
         }
 
         // 3. PNG Interactivo Recortado
         const overlayDiv = document.createElement('div');
-        overlayDiv.className = `brain-out-overlay overlay-phase-${phase.id}`;
+        overlayDiv.className = `brain-out-overlay overlay-phase-${phase.id} draggable-item`;
 
         const pngImg = document.createElement('img');
         pngImg.src = phase.overlayImage;
         pngImg.className = 'overlay-png';
         overlayDiv.appendChild(pngImg);
 
-        // Configurar Mecánicas de Acción
-        if (phase.mechanicType === 'drag') {
-            overlayDiv.classList.add('draggable-item');
-            setupDrag(overlayDiv, revealRedAnswer);
+        // Configurar Mecánica de Arrastre Dinámico (Real Touch & Pointer Drag)
+        setupRealDrag(overlayDiv, revealRedAnswer);
 
-        } else if (phase.mechanicType === 'drain') {
-            overlayDiv.style.cursor = 'pointer';
-            overlayDiv.addEventListener('click', () => {
-                overlayDiv.classList.add('drained');
-                revealRedAnswer();
-            });
-
-        } else if (phase.mechanicType === 'scratch') {
-            overlayDiv.style.cursor = 'pointer';
-            let touches = 0;
-            function doScratch() {
-                touches++;
-                playSound('beep');
-                if (touches >= 2) {
-                    overlayDiv.classList.add('scratched');
-                    revealRedAnswer();
-                }
-            }
-            overlayDiv.addEventListener('click', doScratch);
-            overlayDiv.addEventListener('touchmove', doScratch, { passive: true });
-
-        } else if (phase.mechanicType === 'dial') {
-            overlayDiv.style.cursor = 'pointer';
-            let currentRotation = 0;
-            overlayDiv.addEventListener('click', () => {
-                currentRotation += 90;
-                overlayDiv.style.transform = `rotate(${currentRotation}deg)`;
-                playSound('beep');
-                if (currentRotation >= 180) {
-                    overlayDiv.classList.add('drained');
+        // Configurar Giroscopio en Celular si la fase es tilt (o en cualquiera)
+        if (phase.mechanicType === 'tilt' && window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', (e) => {
+                if (!answerRevealed && (Math.abs(e.gamma) > 25 || Math.abs(e.beta) > 25)) {
+                    overlayDiv.classList.add('tilted');
                     revealRedAnswer();
                 }
             });
-
-        } else if (phase.mechanicType === 'longpress') {
-            overlayDiv.style.cursor = 'pointer';
-            let progressInterval = null;
-            let progressVal = 0;
-
-            function startPress() {
-                progressVal = 0;
-                playSound('beep');
-                progressInterval = setInterval(() => {
-                    progressVal += 25;
-                    overlayDiv.style.opacity = 1 - (progressVal / 100);
-                    if (progressVal >= 100) {
-                        clearInterval(progressInterval);
-                        overlayDiv.classList.add('drained');
-                        revealRedAnswer();
-                    }
-                }, 150);
-            }
-
-            function cancelPress() {
-                clearInterval(progressInterval);
-                if (progressVal < 100) {
-                    progressVal = 0;
-                    overlayDiv.style.opacity = 1;
-                }
-            }
-
-            overlayDiv.addEventListener('mousedown', startPress);
-            overlayDiv.addEventListener('mouseup', cancelPress);
-            overlayDiv.addEventListener('mouseleave', cancelPress);
-            overlayDiv.addEventListener('touchstart', startPress, { passive: true });
-            overlayDiv.addEventListener('touchend', cancelPress);
         }
 
         container.appendChild(overlayDiv);
         stageCanvas.appendChild(container);
     }
 
-    function setupDrag(item, onReleaseCallback) {
+    // ARRASTRE REAL EN TIEMPO REAL (Touch & Pointer)
+    function setupRealDrag(item, onReleaseCallback) {
         let isDragging = false;
-        let startX, startY;
+        let startX, startY, currentTransX = 0, currentTransY = 0;
 
-        function start(e) {
+        function getCoord(e) {
+            if (e.touches && e.touches.length > 0) {
+                return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }
+            return { x: e.clientX, y: e.clientY };
+        }
+
+        function onPointerDown(e) {
             isDragging = true;
-            startX = e.clientX || (e.touches && e.touches[0].clientX);
-            startY = e.clientY || (e.touches && e.touches[0].clientY);
+            const coord = getCoord(e);
+            startX = coord.x - currentTransX;
+            startY = coord.y - currentTransY;
+            item.style.transition = 'none';
             playSound('beep');
         }
 
-        function end() {
+        function onPointerMove(e) {
             if (!isDragging) return;
-            isDragging = false;
-            item.classList.add('dragged');
-            if (onReleaseCallback) onReleaseCallback();
+            const coord = getCoord(e);
+            currentTransX = coord.x - startX;
+            currentTransY = coord.y - startY;
+
+            item.style.transform = `translate(${currentTransX}px, ${currentTransY}px) rotate(8deg)`;
+
+            // Si se arrastra más de 50px en cualquier dirección, revela la respuesta
+            if (Math.abs(currentTransX) > 50 || Math.abs(currentTransY) > 50) {
+                onReleaseCallback();
+            }
         }
 
-        item.addEventListener('mousedown', start);
-        window.addEventListener('mouseup', end);
-        item.addEventListener('touchstart', start, { passive: true });
-        window.addEventListener('touchend', end);
+        function onPointerUp() {
+            if (!isDragging) return;
+            isDragging = false;
+            item.style.transition = 'transform 0.3s ease';
+            if (Math.abs(currentTransX) > 30 || Math.abs(currentTransY) > 30) {
+                onReleaseCallback();
+            }
+        }
+
+        item.addEventListener('mousedown', onPointerDown);
+        window.addEventListener('mousemove', onPointerMove);
+        window.addEventListener('mouseup', onPointerUp);
+
+        item.addEventListener('touchstart', onPointerDown, { passive: true });
+        window.addEventListener('touchmove', onPointerMove, { passive: true });
+        window.addEventListener('touchend', onPointerUp);
+
+        // Click / Tap directo de respaldo
         item.addEventListener('click', () => {
             item.classList.add('dragged');
-            if (onReleaseCallback) onReleaseCallback();
+            onReleaseCallback();
         });
     }
 
-    // --- PASSWORD SUBMISSION ---
+    // --- CONTRASEÑAS ---
     passwordForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const enteredPass = passwordInput.value.trim().toUpperCase();
